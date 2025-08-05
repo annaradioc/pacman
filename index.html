@@ -1,212 +1,176 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><!DOCTYPE html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Pac-Man Music Edition</title>
+  <title>Успеть на Дискотеку 💃</title>
   <style>
-    body {
-      background: #000;
-      color: #fff;
-      font-family: sans-serif;
-      text-align: center;
-    }
-
-    #game {
-      display: grid;
-      grid-template-columns: repeat(10, 40px);
-      grid-template-rows: repeat(10, 40px);
-      gap: 1px;
-      margin: 20px auto;
-    }
-
-    .cell {
-      width: 40px;
-      height: 40px;
-      background: #111;
-      box-sizing: border-box;
-    }
-
-    .wall {
-      background: #444;
-    }
-
-    .breakable {
-      background: #884444;
-    }
-
-    .note::after {
-      content: '🎵';
-      position: relative;
-      font-size: 22px;
-      top: 6px;
-    }
-
-    .pacman {
-      background: yellow;
-      border-radius: 50%;
-    }
-
-    .bullet {
-      background: red;
-      border-radius: 50%;
-    }
-
-    #info {
-      margin-top: 10px;
-    }
+    body { margin:0; overflow:hidden; font-family:sans-serif; background:#444; }
+    #game { position:relative;width:500px;height:700px;margin:20px auto;background:#666;border:5px solid #fff;overflow:hidden; }
+    .lane{position:absolute;top:0;width:2px;height:100%;background:white;opacity:0.5;z-index:0;}
+    .player{position:absolute;bottom:10px;left:200px;width:100px;text-align:center;font-size:60px;z-index:2;transition:left 0.1s;}
+    .obstacle{position:absolute;width:100px;text-align:center;font-size:60px;top:0;z-index:1;color:black;}
+    .note{position:absolute;width:100px;text-align:center;font-size:40px;top:0;z-index:1;color:yellow;}
+    @keyframes fall{0%{top:-60px;}100%{top:720px;}}
+    .falling{animation:fall linear forwards;}
+    #message,#victory{position:absolute;top:50%;width:100%;text-align:center;color:white;font-size:30px;display:none;z-index:10;}
+    #scoreboard{position:absolute;top:10px;left:10px;color:#fff;font-size:20px;z-index:10;}
+    #restartBtn{display:none;position:absolute;top:70%;left:50%;transform:translateX(-50%);padding:10px 20px;font-size:18px;background:#fff;border:none;cursor:pointer;z-index:10;}
+    .rave{animation:party 0.2s infinite alternate;}
+    @keyframes party{0%{background:#000;}100%{background:#6600cc;}}
+    #victoryEmoji{font-size:50px;margin-top:20px;display:flex;justify-content:center;flex-wrap:wrap;gap:10px;}
   </style>
 </head>
 <body>
-  <h1>Pac-Man: Музыкальное приключение 🎶</h1>
-  <div id="game"></div>
-  <div id="info">Уровень: <span id="level">1</span></div>
+  <div id="game">
+    <div class="player" id="player">🕺</div>
+    <div id="message">😢 Ты не успел на дискотеку!</div>
+    <div id="victory">
+      🎉 Ты успел на дискотеку! 🪩<br>
+      <div id="victoryEmoji">🕺💃🎶🪩🔥🕺💃🎶</div>
+    </div>
+    <div id="scoreboard">Ноты: 0 | Уровень: 1</div>
+    <button id="restartBtn">🔄 Играть снова</button>
+  </div>
+
+  <!-- Аудио файлы: помести рядом с index.html или используй URL -->
+  <audio id="sfx-note" src="https://psv4.userapi.com/s/v1/amsg2/pI_1emvirNh91Tmy2Etmtl4959WMf_PTURC0-_Vryg0r8A1VehVkk0TO28nTxTnRs5kjxR9dPliUVyscYq9vlCafW8w.mp3"></audio>
+  <audio id="sfx-fail" src="https://psv4.userapi.com/s/v1/amsg2/aiW3ku67TfH5XMDfQ87CfZ2D-ir8hINUq6vdv-JJNLkgxO8J7025imt3nwDfgVz2AEA4kRF8lYgjuh7cSNOJ-D5pKMg.mp3"></audio>
+  <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
 
   <script>
+    const sfxNote = document.getElementById('sfx-note');
+    const sfxFail = document.getElementById('sfx-fail');
+    const sfxWin = document.getElementById('sfx-win');
     const game = document.getElementById('game');
-    const levelDisplay = document.getElementById('level');
-    const width = 10;
-    let pacmanIndex = 11;
-    let bulletIndex = null;
-    let bulletDirection = null;
-    let level = 0;
+    const player = document.getElementById('player');
+    const message = document.getElementById('message');
+    const victory = document.getElementById('victory');
+    const scoreboard = document.getElementById('scoreboard');
+    const restartBtn = document.getElementById('restartBtn');
 
-    const levels = [
-      [
-        1,1,1,1,1,1,1,1,1,1,
-        1,0,0,0,0,0,0,2,0,1,
-        1,0,1,1,1,0,1,1,0,1,
-        1,0,0,0,1,0,1,0,0,1,
-        1,1,1,0,1,2,1,0,1,1,
-        1,0,0,0,0,0,1,0,0,1,
-        1,0,1,1,1,1,1,1,0,1,
-        1,0,0,0,2,0,0,0,0,1,
-        1,0,1,1,1,1,1,1,0,1,
-        1,1,1,1,1,1,1,1,1,1
-      ],
-      [
-        1,1,1,1,1,1,1,1,1,1,
-        1,0,0,2,0,0,0,2,0,1,
-        1,0,1,1,1,1,1,1,0,1,
-        1,0,0,0,0,0,0,0,0,1,
-        1,1,1,1,1,1,1,1,1,1,
-        1,0,0,0,2,0,0,0,0,1,
-        1,0,1,1,1,1,1,1,0,1,
-        1,0,2,0,0,0,2,0,0,1,
-        1,0,1,1,1,1,1,1,0,1,
-        1,1,1,1,1,1,1,1,1,1
-      ]
-    ];
+    const step=100,maxSteps=5,winScore=30;
+    let playerX=200,gameOver=false,score=0,level=1;
+    let obstacleInterval=600,fallSpeed=2;
+    let obstacleSpawner,noteSpawner;
+    let recentObstacleLanes=[];
 
-    // 0 - note, 1 - wall, 2 - breakable
-    let layout = [];
-
-    const cells = [];
-
-    function createBoard() {
-      game.innerHTML = '';
-      cells.length = 0;
-      layout = levels[level];
-      layout.forEach((val, i) => {
-        const cell = document.createElement('div');
-        cell.classList.add('cell');
-        if (val === 1) cell.classList.add('wall');
-        else if (val === 2) cell.classList.add('breakable');
-        else cell.classList.add('note');
-        game.appendChild(cell);
-        cells.push(cell);
-      });
-      pacmanIndex = 11;
-      cells[pacmanIndex].classList.add('pacman');
+    for(let i=1;i<maxSteps;i++){
+      const lane=document.createElement('div');
+      lane.className='lane';
+      lane.style.left=`${i*step}px`;
+      game.appendChild(lane);
     }
 
-    function movePacman(e) {
-      if (bulletIndex !== null) return;
-
-      cells[pacmanIndex].classList.remove('pacman');
-
-      let newIndex = pacmanIndex;
-
-      if (e.key === 'ArrowLeft' && pacmanIndex % width !== 0) newIndex -= 1;
-      if (e.key === 'ArrowRight' && pacmanIndex % width < width - 1) newIndex += 1;
-      if (e.key === 'ArrowUp' && pacmanIndex - width >= 0) newIndex -= width;
-      if (e.key === 'ArrowDown' && pacmanIndex + width < width * width) newIndex += width;
-
-      if (!cells[newIndex].classList.contains('wall')) {
-        pacmanIndex = newIndex;
-      }
-
-      // Съесть нотку
-      if (cells[pacmanIndex].classList.contains('note')) {
-        cells[pacmanIndex].classList.remove('note');
-      }
-
-      cells[pacmanIndex].classList.add('pacman');
-
-      checkLevelComplete();
-    }
-
-    function checkLevelComplete() {
-      const remainingNotes = cells.some(cell => cell.classList.contains('note'));
-      if (!remainingNotes) {
-        level++;
-        if (level >= levels.length) {
-          alert("🎉 Все уровни пройдены!");
-          level = 0;
-        }
-        levelDisplay.textContent = level + 1;
-        createBoard();
-      }
-    }
-
-    function shootBullet() {
-      bulletIndex = pacmanIndex;
-      bulletDirection = 1; // по умолчанию вправо
-
-      document.addEventListener('keydown', e => {
-        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-          if (e.key === 'ArrowLeft') bulletDirection = -1;
-          if (e.key === 'ArrowRight') bulletDirection = 1;
-          if (e.key === 'ArrowUp') bulletDirection = -width;
-          if (e.key === 'ArrowDown') bulletDirection = width;
-        }
-      });
-
-      const interval = setInterval(() => {
-        if (bulletIndex !== null) {
-          cells[bulletIndex].classList.remove('bullet');
-        }
-        bulletIndex += bulletDirection;
-
-        if (
-          bulletIndex < 0 || bulletIndex >= layout.length ||
-          cells[bulletIndex].classList.contains('wall')
-        ) {
-          clearInterval(interval);
-          bulletIndex = null;
-          return;
-        }
-
-        if (cells[bulletIndex].classList.contains('breakable')) {
-          cells[bulletIndex].classList.remove('breakable');
-          layout[bulletIndex] = 0;
-          clearInterval(interval);
-          bulletIndex = null;
-          return;
-        }
-
-        cells[bulletIndex].classList.add('bullet');
-      }, 100);
-    }
-
-    document.addEventListener('keydown', e => {
-      if (e.key === ' ') {
-        shootBullet();
-      } else {
-        movePacman(e);
-      }
+    document.addEventListener('keydown',e=>{
+      if(gameOver)return;
+      if(e.key==='ArrowLeft'&&playerX>0)playerX-=step;
+      else if(e.key==='ArrowRight'&&playerX<(step*(maxSteps-1)))playerX+=step;
+      player.style.left=playerX+'px';
     });
 
-    createBoard();
+    function updateScoreboard(){
+      scoreboard.textContent=`Ноты: ${score} | Уровень: ${level}`;
+    }
+
+    function createObstacle(){
+      if(gameOver)return;
+      const obs=document.createElement('div');
+      obs.classList.add('obstacle','falling');
+      obs.textContent='🏠';
+      const lane=Math.floor(Math.random()*maxSteps);
+      obs.style.left=`${lane*step}px`;
+      obs.style.animationDuration=`${fallSpeed}s`;
+      game.appendChild(obs);
+      recentObstacleLanes.push(lane);
+      if(recentObstacleLanes.length>5)recentObstacleLanes.shift();
+      const check=setInterval(()=>{
+        const top=obs.offsetTop,left=obs.offsetLeft;
+        if(top>600&&Math.abs(left-playerX)<step*0.5){
+          clearInterval(check);
+          sfxFail.currentTime=0; sfxFail.play();
+          endGame(false);
+        }
+        if(top>700){ clearInterval(check); obs.remove(); }
+      },50);
+    }
+
+    function createNote(){
+      if(gameOver)return;
+      let lane,attempts=0;
+      do{
+        lane=Math.floor(Math.random()*maxSteps);
+        attempts++;
+      }while(recentObstacleLanes.includes(lane)&&attempts<10);
+      const note=document.createElement('div');
+      note.classList.add('note','falling');
+      note.textContent='🎵';
+      note.style.left=`${lane*step}px`;
+      note.style.animationDuration=`${fallSpeed}s`;
+      game.appendChild(note);
+      const check=setInterval(()=>{
+        const top=note.offsetTop,left=note.offsetLeft;
+        if(top>600&&Math.abs(left-playerX)<step){
+          clearInterval(check);
+          note.remove();
+          score++; updateScoreboard();
+          sfxNote.currentTime=0; sfxNote.play();
+          checkLevelUp(); checkWin();
+        }
+        if(top>700)clearInterval(check)&&note.remove();
+      },50);
+    }
+
+    function checkLevelUp(){
+      if(score%10===0){
+        level++; updateScoreboard();
+        fallSpeed=Math.max(0.3,fallSpeed-0.2);
+        obstacleInterval=Math.max(200,obstacleInterval-80);
+        resetSpawners();
+      }
+    }
+
+    function checkWin(){
+      if(score>=winScore){
+        sfxWin.currentTime=0; sfxWin.play();
+        endGame(true);
+      }
+    }
+
+    function endGame(win){
+      gameOver=true;
+      clearInterval(obstacleSpawner);
+      clearInterval(noteSpawner);
+      document.querySelectorAll('.falling').forEach(el=>el.style.animationPlayState='paused');
+      if(win){ victory.style.display='block'; game.classList.add('rave'); }
+      else message.style.display='block';
+      restartBtn.style.display='block';
+    }
+
+    function startSpawners(){
+      obstacleSpawner=setInterval(createObstacle,obstacleInterval);
+      noteSpawner=setInterval(createNote,obstacleInterval*1.5);
+    }
+
+    function resetSpawners(){
+      clearInterval(obstacleSpawner);
+      clearInterval(noteSpawner);
+      startSpawners();
+    }
+
+    function resetGame(){
+      document.querySelectorAll('.obstacle, .note').forEach(el=>el.remove());
+      playerX=200; player.style.left='200px';
+      gameOver=false; score=0; level=1;
+      fallSpeed=2; obstacleInterval=600; recentObstacleLanes=[];
+      message.style.display='none'; victory.style.display='none'; restartBtn.style.display='none';
+      game.classList.remove('rave'); updateScoreboard(); resetSpawners();
+    }
+
+    restartBtn.addEventListener('click', resetGame);
+    updateScoreboard();
+    startSpawners();
   </script>
 </body>
 </html>
+
+
