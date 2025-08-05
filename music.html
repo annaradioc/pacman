@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pac-Man Music Edition</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    #game {
+      display: grid;
+      grid-template-columns: repeat(10, 40px);
+      grid-template-rows: repeat(10, 40px);
+      gap: 1px;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 40px;
+      height: 40px;
+      background: #111;
+      box-sizing: border-box;
+    }
+
+    .wall {
+      background: #444;
+    }
+
+    .breakable {
+      background: #884444;
+    }
+
+    .note::after {
+      content: '🎵';
+      position: relative;
+      font-size: 22px;
+      top: 6px;
+    }
+
+    .pacman {
+      background: yellow;
+      border-radius: 50%;
+    }
+
+    .bullet {
+      background: red;
+      border-radius: 50%;
+    }
+
+    #info {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pac-Man: Музыкальное приключение 🎶</h1>
+  <div id="game"></div>
+  <div id="info">Уровень: <span id="level">1</span></div>
+
+  <script>
+    const game = document.getElementById('game');
+    const levelDisplay = document.getElementById('level');
+    const width = 10;
+    let pacmanIndex = 11;
+    let bulletIndex = null;
+    let bulletDirection = null;
+    let level = 0;
+
+    const levels = [
+      [
+        1,1,1,1,1,1,1,1,1,1,
+        1,0,0,0,0,0,0,2,0,1,
+        1,0,1,1,1,0,1,1,0,1,
+        1,0,0,0,1,0,1,0,0,1,
+        1,1,1,0,1,2,1,0,1,1,
+        1,0,0,0,0,0,1,0,0,1,
+        1,0,1,1,1,1,1,1,0,1,
+        1,0,0,0,2,0,0,0,0,1,
+        1,0,1,1,1,1,1,1,0,1,
+        1,1,1,1,1,1,1,1,1,1
+      ],
+      [
+        1,1,1,1,1,1,1,1,1,1,
+        1,0,0,2,0,0,0,2,0,1,
+        1,0,1,1,1,1,1,1,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,0,0,0,2,0,0,0,0,1,
+        1,0,1,1,1,1,1,1,0,1,
+        1,0,2,0,0,0,2,0,0,1,
+        1,0,1,1,1,1,1,1,0,1,
+        1,1,1,1,1,1,1,1,1,1
+      ]
+    ];
+
+    // 0 - note, 1 - wall, 2 - breakable
+    let layout = [];
+
+    const cells = [];
+
+    function createBoard() {
+      game.innerHTML = '';
+      cells.length = 0;
+      layout = levels[level];
+      layout.forEach((val, i) => {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        if (val === 1) cell.classList.add('wall');
+        else if (val === 2) cell.classList.add('breakable');
+        else cell.classList.add('note');
+        game.appendChild(cell);
+        cells.push(cell);
+      });
+      pacmanIndex = 11;
+      cells[pacmanIndex].classList.add('pacman');
+    }
+
+    function movePacman(e) {
+      if (bulletIndex !== null) return;
+
+      cells[pacmanIndex].classList.remove('pacman');
+
+      let newIndex = pacmanIndex;
+
+      if (e.key === 'ArrowLeft' && pacmanIndex % width !== 0) newIndex -= 1;
+      if (e.key === 'ArrowRight' && pacmanIndex % width < width - 1) newIndex += 1;
+      if (e.key === 'ArrowUp' && pacmanIndex - width >= 0) newIndex -= width;
+      if (e.key === 'ArrowDown' && pacmanIndex + width < width * width) newIndex += width;
+
+      if (!cells[newIndex].classList.contains('wall')) {
+        pacmanIndex = newIndex;
+      }
+
+      // Съесть нотку
+      if (cells[pacmanIndex].classList.contains('note')) {
+        cells[pacmanIndex].classList.remove('note');
+      }
+
+      cells[pacmanIndex].classList.add('pacman');
+
+      checkLevelComplete();
+    }
+
+    function checkLevelComplete() {
+      const remainingNotes = cells.some(cell => cell.classList.contains('note'));
+      if (!remainingNotes) {
+        level++;
+        if (level >= levels.length) {
+          alert("🎉 Все уровни пройдены!");
+          level = 0;
+        }
+        levelDisplay.textContent = level + 1;
+        createBoard();
+      }
+    }
+
+    function shootBullet() {
+      bulletIndex = pacmanIndex;
+      bulletDirection = 1; // по умолчанию вправо
+
+      document.addEventListener('keydown', e => {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+          if (e.key === 'ArrowLeft') bulletDirection = -1;
+          if (e.key === 'ArrowRight') bulletDirection = 1;
+          if (e.key === 'ArrowUp') bulletDirection = -width;
+          if (e.key === 'ArrowDown') bulletDirection = width;
+        }
+      });
+
+      const interval = setInterval(() => {
+        if (bulletIndex !== null) {
+          cells[bulletIndex].classList.remove('bullet');
+        }
+        bulletIndex += bulletDirection;
+
+        if (
+          bulletIndex < 0 || bulletIndex >= layout.length ||
+          cells[bulletIndex].classList.contains('wall')
+        ) {
+          clearInterval(interval);
+          bulletIndex = null;
+          return;
+        }
+
+        if (cells[bulletIndex].classList.contains('breakable')) {
+          cells[bulletIndex].classList.remove('breakable');
+          layout[bulletIndex] = 0;
+          clearInterval(interval);
+          bulletIndex = null;
+          return;
+        }
+
+        cells[bulletIndex].classList.add('bullet');
+      }, 100);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === ' ') {
+        shootBullet();
+      } else {
+        movePacman(e);
+      }
+    });
+
+    createBoard();
+  </script>
+</body>
+</html>
