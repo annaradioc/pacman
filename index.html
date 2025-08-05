@@ -8,7 +8,7 @@
     body { margin:0; overflow:hidden; font-family:sans-serif; background:#444; }
     #game { position:relative; width:100%; max-width:500px; height:700px; margin:0 auto; background:#666; border:5px solid #fff; overflow:hidden; touch-action: manipulation; }
     .lane { position:absolute; top:0; width:2px; height:100%; background:white; opacity:0.5; z-index:0; }
-    .player { position:absolute; bottom:10px; left:200px; width:100px; text-align:center; font-size:60px; z-index:2; transition:left 0.1s; }
+    .player { position:absolute; bottom:100px; left:200px; width:100px; text-align:center; font-size:60px; z-index:2; transition:left 0.1s; }
     .obstacle { position:absolute; width:100px; text-align:center; font-size:60px; top:0; z-index:1; color:black; }
     .note { position:absolute; width:100px; text-align:center; font-size:40px; top:0; z-index:1; color:yellow; }
     @keyframes fall { 0% { top:-60px; } 100% { top:720px; } }
@@ -19,8 +19,8 @@
     .rave { animation:party 0.2s infinite alternate; }
     @keyframes party { 0% { background:#000; } 100% { background:#6600cc; } }
     #victoryEmoji { font-size:50px; margin-top:20px; display:flex; justify-content:center; flex-wrap:wrap; gap:10px; }
-    .controls { display:none; position:absolute; bottom:0; width:100%; text-align:center; z-index:5; }
-    .btn { font-size:40px; padding:10px 20px; margin:10px; background:#fff; border:none; border-radius:10px; }
+    .controls { display:none; position:absolute; bottom:10px; width:100%; text-align:center; z-index:5; }
+    .btn { font-size:36px; padding:10px 20px; margin:5px; background:#fff; border:none; border-radius:10px; }
     @media(max-width:600px){
       .controls { display:block; }
     }
@@ -40,8 +40,8 @@
   </div>
 
   <!-- Аудио -->
-  <audio id="sfx-note" src="note.mp3" preload="auto"></audio>
-  <audio id="sfx-fail" src="fail.mp3" preload="auto"></audio>
+  <audio id="sfx-note" src="https://psv4.userapi.com/s/v1/amsg2/pI_1emvirNh91Tmy2Etmtl4959WMf_PTURC0-_Vryg0r8A1VehVkk0TO28nTxTnRs5kjxR9dPliUVyscYq9vlCafW8w.mp3"></audio>
+  <audio id="sfx-fail" src="https://psv4.userapi.com/s/v1/amsg2/aiW3ku67TfH5XMDfQ87CfZ2D-ir8hINUq6vdv-JJNLkgxO8J7025imt3nwDfgVz2AEA4kRF8lYgjuh7cSNOJ-D5pKMg.mp3"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
 
   <script>
