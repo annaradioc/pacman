@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Успеть на Дискотеку 💃</title>
-  <style>
-    body{margin:0;overflow:hidden;font-family:sans-serif;background:#444}
-    #game{position:relative;width:100%;max-width:500px;height:700px;margin:0 auto;background:#666;border:5px solid #fff;overflow:hidden;touch-action:manipulation}
-    .lane{position:absolute;top:0;width:2px;height:100%;background:white;opacity:0.5;z-index:0}
-    .player{position:absolute;bottom:100px;left:200px;width:100px;text-align:center;font-size:60px;z-index:2;transition:left .1s}
-    .obstacle{position:absolute;width:100px;text-align:center;font-size:60px;top:0;z-index:1;color:black}
-    .note{position:absolute;width:100px;text-align:center;font-size:40px;top:0;z-index:1;color:yellow}
-    @keyframes fall{0%{top:-60px}100%{top:720px}}
-    .falling{animation:fall linear forwards}
-    #message,#victory{position:absolute;top:50%;width:100%;text-align:center;color:white;font-size:30px;display:none;z-index:10}
-    #scoreboard{position:absolute;top:10px;left:10px;color:#fff;font-size:20px;z-index:10}
-    #restartBtn{display:none;position:absolute;top:70%;left:50%;transform:translateX(-50%);padding:10px 20px;font-size:18px;background:#fff;border:none;cursor:pointer;z-index:10}
-    .rave{animation:party .2s infinite alternate}
-    @keyframes party{0%{background:#000}100%{background:#6600cc}}
-    #victoryEmoji{font-size:50px;margin-top:20px;display:flex;justify-content:center;flex-wrap:wrap;gap:10px}
-    .controls{display:none;position:absolute;bottom:10px;width:100%;text-align:center;z-index:5}
-    .btn{font-size:36px;padding:10px 20px;margin:5px;background:#fff;border:none;border-radius:10px}
-    @media(max-width:600px){.controls{display:block}}
-  </style>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Успеть на Дискотеку 💃</title>
+<style>
+  body{margin:0;overflow:hidden;background:#444;font-family:sans-serif}
+  #game{position:relative;width:100%;max-width:500px;height:700px;margin:0 auto;background:#666;border:5px solid #fff;overflow:hidden;touch-action:manipulation}
+  .player{position:absolute;bottom:100px;left:200px;width:100px;text-align:center;font-size:60px;z-index:2;transition:left .1s}
+  .obstacle{position:absolute;width:100px;text-align:center;font-size:60px;top:0;z-index:1;color:black}
+  .note{position:absolute;width:100px;text-align:center;font-size:40px;top:0;z-index:1;color:yellow}
+  @keyframes fall{0%{top:-60px}100%{top:720px}}
+  .falling{animation:fall linear forwards}
+  #scoreboard{position:absolute;top:10px;left:10px;color:#fff;font-size:20px;z-index:10}
+  #message,#victory{position:absolute;top:50%;width:100%;text-align:center;color:#fff;font-size:30px;display:none;z-index:10}
+  #restartBtn{display:none;position:absolute;top:70%;left:50%;transform:translateX(-50%);padding:10px 20px;font-size:18px;background:#fff;border:none;cursor:pointer;z-index:10}
+  .controls{display:none;position:absolute;bottom:10px;width:100%;text-align:center;z-index:5}
+  .btn{font-size:36px;padding:10px 20px;margin:5px;background:#fff;border:none;border-radius:10px}
+  @media(max-width:600px){.controls{display:block}}
+</style>
 </head>
 <body>
 <div id="game">
@@ -42,139 +37,103 @@
 <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
 
 <script>
-const sfxNote = document.getElementById('sfx-note'),
-  sfxFail = document.getElementById('sfx-fail'),
-  sfxWin = document.getElementById('sfx-win'),
-  player = document.getElementById('player'),
-  message = document.getElementById('message'),
-  victory = document.getElementById('victory'),
-  scoreboard = document.getElementById('scoreboard'),
-  restartBtn = document.getElementById('restartBtn'),
-  leftBtn = document.getElementById('leftBtn'),
-  rightBtn = document.getElementById('rightBtn');
+const sfxNote=document.getElementById('sfx-note'),
+      sfxFail=document.getElementById('sfx-fail'),
+      sfxWin=document.getElementById('sfx-win'),
+      player=document.getElementById('player'),
+      message=document.getElementById('message'),
+      victory=document.getElementById('victory'),
+      scoreboard=document.getElementById('scoreboard'),
+      restartBtn=document.getElementById('restartBtn'),
+      leftBtn=document.getElementById('leftBtn'),
+      rightBtn=document.getElementById('rightBtn');
 
-const step =100, maxSteps =5, winScore =30;
-let playerX =200, gameOver=false, score=0, level=1;
+const step=100, maxSteps=5, winScore=30;
+let playerX=200, gameOver=false, score=0, level=1;
 let obstacleInterval=600, fallSpeed=2, obstacleSpawner, noteSpawner;
 let recentObstacleLanes=[];
 
 for(let i=1;i<maxSteps;i++){
   const lane=document.createElement('div');
-  lane.className='lane'; lane.style.left=`${i*step}px`;
+  lane.style= `position:absolute;top:0;width:2px;height:100%;background:white;opacity:0.5;left:${i*step}px;`;
   document.getElementById('game').appendChild(lane);
 }
 
-function movePlayer(delta){
-  playerX+=delta;
-  player.style.left=playerX+'px';
-}
+function movePlayer(d){playerX+=d;player.style.left=playerX+'px';}
+document.addEventListener('keydown',e=>{if(gameOver)return; if(e.key==='ArrowLeft'&&playerX>0)movePlayer(-step); if(e.key==='ArrowRight'&&playerX<step*(maxSteps-1))movePlayer(step);});
+leftBtn.onclick=()=>{if(!gameOver&&playerX>0)movePlayer(-step);};
+rightBtn.onclick=()=>{if(!gameOver&&playerX<step*(maxSteps-1))movePlayer(step);};
 
-document.addEventListener('keydown',e=>{
-  if(gameOver)return;
-  if(e.key==='ArrowLeft'&&playerX>0)movePlayer(-step);
-  if(e.key==='ArrowRight'&&playerX<step*(maxSteps-1))movePlayer(step);
-});
-leftBtn.onclick=()=>{ if(!gameOver&&playerX>0)movePlayer(-step); };
-rightBtn.onclick=()=>{ if(!gameOver&&playerX<step*(maxSteps-1))movePlayer(step); };
-
-function updateScoreboard(){
-  scoreboard.textContent=`Ноты: ${score} | Уровень: ${level}`;
-}
+function updateScoreboard(){scoreboard.textContent=`Ноты: ${score} | Уровень: ${level}`;}
 
 function createObstacle(){
   if(gameOver)return;
   const obs=document.createElement('div');
-  obs.classList.add('obstacle','falling');
-  obs.textContent='🏠';
+  obs.className='obstacle falling'; obs.textContent='🏠';
   const lane=Math.floor(Math.random()*maxSteps);
-  obs.style.left=`${lane*step}px`;
-  obs.style.animationDuration=`${fallSpeed}s`;
+  obs.style.left=`${lane*step}px`; obs.style.animationDuration=`${fallSpeed}s`;
   document.getElementById('game').appendChild(obs);
   recentObstacleLanes.push(lane);
   if(recentObstacleLanes.length>5)recentObstacleLanes.shift();
-
-  const check = setInterval(()=>{
-    const top=obs.offsetTop, left=obs.offsetLeft;
-    if(top>600 && Math.abs(left-playerX)<step*0.3){
-      clearInterval(check);
-      sfxFail.currentTime=0; sfxFail.play();
-      endGame(false);
+  const check=setInterval(()=>{
+    const t=obs.offsetTop, l=obs.offsetLeft;
+    if(t>600 && Math.abs(l-playerX)<step*0.3){
+      clearInterval(check); sfxFail.currentTime=0; sfxFail.play(); endGame(false);
     }
-    if(top>700){ clearInterval(check); obs.remove(); }
+    if(t>700){clearInterval(check); obs.remove();}
   },50);
 }
 
 function createNote(){
   if(gameOver)return;
   let lane, attempts=0;
-  do{ lane=Math.floor(Math.random()*maxSteps); attempts++; }
-  while(recentObstacleLanes.includes(lane)&&attempts<10);
+  do{lane=Math.floor(Math.random()*maxSteps); attempts++;}while(recentObstacleLanes.includes(lane)&&attempts<10);
   const note=document.createElement('div');
-  note.classList.add('note','falling');
-  note.textContent='🎵';
-  note.style.left=`${lane*step}px`;
-  note.style.animationDuration=`${fallSpeed}s`;
+  note.className='note falling'; note.textContent='🎵';
+  note.style.left=`${lane*step}px`; note.style.animationDuration=`${fallSpeed}s`;
   document.getElementById('game').appendChild(note);
-
   const check=setInterval(()=>{
-    const top=note.offsetTop, left=note.offsetLeft;
-    if(top>0 && Math.abs(left-playerX)<step*1.2){
+    const t=note.offsetTop, l=note.offsetLeft;
+    if(Math.abs(l-playerX)<step*1.5){
       clearInterval(check); note.remove();
-      score++; updateScoreboard();
-      sfxNote.currentTime=0; sfxNote.play();
-      checkLevelUp(); checkWin();
+      score++; updateScoreboard(); sfxNote.currentTime=0; sfxNote.play(); checkLevelUp(); checkWin();
     }
-    if(top>700){ clearInterval(check); note.remove(); }
+    else if(t>700){clearInterval(check); note.remove();}
   },50);
 }
 
 function checkLevelUp(){
   if(score>0 && score%10===0){
-    level++; updateScoreboard();
-    fallSpeed=Math.max(0.3,fallSpeed-0.2);
-    obstacleInterval=Math.max(200,obstacleInterval-80);
-    resetSpawners();
+    level++; updateScoreboard(); fallSpeed=Math.max(0.3,fallSpeed-0.2);
+    obstacleInterval=Math.max(200,obstacleInterval-80); resetSpawners();
   }
 }
 
 function checkWin(){
-  if(score>=winScore){
-    sfxWin.currentTime=0; sfxWin.play();
-    endGame(true);
-  }
+  if(score>=winScore){sfxWin.currentTime=0; sfxWin.play(); endGame(true);}
 }
 
 function endGame(win){
-  gameOver=true;
-  clearInterval(obstacleSpawner); clearInterval(noteSpawner);
+  gameOver=true; clearInterval(obstacleSpawner); clearInterval(noteSpawner);
   document.querySelectorAll('.falling').forEach(el=>el.style.animationPlayState='paused');
-  if(win){ victory.style.display='block'; document.getElementById('game').classList.add('rave'); }
+  if(win){victory.style.display='block'; document.getElementById('game').classList.add('rave');}
   else message.style.display='block';
   restartBtn.style.display='block';
 }
 
-function startSpawners(){
-  obstacleSpawner=setInterval(createObstacle,obstacleInterval);
-  noteSpawner=setInterval(createNote,obstacleInterval*1.5);
-}
-
-function resetSpawners(){
-  clearInterval(obstacleSpawner); clearInterval(noteSpawner);
-  startSpawners();
-}
+function startSpawners(){obstacleSpawner=setInterval(createObstacle,obstacleInterval); noteSpawner=setInterval(createNote,obstacleInterval*1.5);}
+function resetSpawners(){clearInterval(obstacleSpawner);clearInterval(noteSpawner);startSpawners();}
 
 function resetGame(){
   document.querySelectorAll('.obstacle, .note').forEach(el=>el.remove());
-  playerX=200; player.style.left='200px';
-  gameOver=false; score=0; level=1;
-  fallSpeed=2; obstacleInterval=600; recentObstacleLanes=[];
-  message.style.display='none'; victory.style.display='none'; restartBtn.style.display='none';
-  document.getElementById('game').classList.remove('rave');
-  updateScoreboard(); resetSpawners();
+  playerX=200;player.style.left='200px';gameOver=false;score=0;level=1;
+  fallSpeed=2;obstacleInterval=600;recentObstacleLanes=[];
+  message.style.display='none';victory.style.display='none';restartBtn.style.display='none';document.getElementById('game').classList.remove('rave');
+  updateScoreboard();resetSpawners();
 }
 
 restartBtn.onclick=resetGame;
-updateScoreboard(); startSpawners();
+updateScoreboard();startSpawners();
 </script>
 </body>
 </html>
