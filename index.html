@@ -168,7 +168,7 @@
   </div>
 
   <!-- Радио СИ -->
-  <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" preload="none" loop></audio>
+  <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" preload="none" loop playsinline></audio>
   <audio id="sfx-note" src="note.mp3" preload="auto"></audio>
   <audio id="sfx-fail" src="fail.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
@@ -338,13 +338,21 @@
     restartBtn.addEventListener('click', resetGame);
 
     // Кнопка старт
-    document.getElementById('startBtn').addEventListener('click', () => {
-      document.getElementById('startScreen').style.display = 'none';
-      bgMusic.volume = 0.3;
-      bgMusic.play().catch(() => {});
-      updateScoreboard();
-      startSpawners();
+     document.getElementById('startBtn').addEventListener('click', () => {
+    document.getElementById('startScreen').style.display = 'none';
+
+    const audio = document.getElementById('bg-music');
+    audio.volume = 0.3;
+    audio.play().then(() => {
+      console.log('🎵 Радио запущено');
+    }).catch((e) => {
+      console.warn('🔇 Не удалось воспроизвести музыку:', e);
+      alert("⚠️ Нажмите на кнопку ещё раз, чтобы включить музыку.");
     });
+
+    updateScoreboard();
+    startSpawners();
+  });
   </script>
 </body>
 </html>
