@@ -130,8 +130,10 @@
     }
     #startScreen {
       position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: #000;
       z-index: 999;
       color: white;
@@ -150,7 +152,7 @@
 <body>
   <div id="startScreen">
     <p style="font-size:24px;">Нажми, чтобы начать 🎵</p>
-    <button onclick="startGame()" style="font-size:20px;padding:10px 20px;">Старт</button>
+    <button id="startBtn" style="font-size:20px;padding:10px 20px;">▶️ Старт</button>
   </div>
 
   <div id="game">
@@ -165,11 +167,11 @@
     </div>
   </div>
 
-  <!-- Аудио -->
+  <!-- Радио СИ -->
+  <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" preload="none" loop></audio>
   <audio id="sfx-note" src="note.mp3" preload="auto"></audio>
   <audio id="sfx-fail" src="fail.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
-  <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" loop></audio>
 
   <script>
     const sfxNote = document.getElementById('sfx-note');
@@ -198,6 +200,11 @@
       game.appendChild(lane);
     }
 
+    function movePlayer(delta) {
+      playerX += delta;
+      player.style.left = playerX + 'px';
+    }
+
     document.addEventListener('keydown', e => {
       if (gameOver) return;
       if (e.key === 'ArrowLeft' && playerX > 0) movePlayer(-step);
@@ -214,11 +221,6 @@
       if (playerX < (step * (maxSteps - 1))) movePlayer(step);
     });
 
-    function movePlayer(delta) {
-      playerX += delta;
-      player.style.left = playerX + 'px';
-    }
-
     function updateScoreboard() {
       scoreboard.textContent = `Ноты: ${score} | Уровень: ${level}`;
     }
@@ -234,6 +236,7 @@
       game.appendChild(obs);
       recentObstacleLanes.push(lane);
       if (recentObstacleLanes.length > 5) recentObstacleLanes.shift();
+
       const check = setInterval(() => {
         const top = obs.offsetTop;
         const left = obs.offsetLeft;
@@ -241,11 +244,13 @@
         const playerHeight = player.offsetHeight;
         const overlapX = Math.abs(left - playerX) < 50;
         const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
+
         if (overlapX && overlapY) {
           clearInterval(check);
           sfxFail.play();
           endGame(false);
         }
+
         if (top > 700) {
           clearInterval(check);
           obs.remove();
@@ -274,26 +279,18 @@
         const overlapX = Math.abs(left - playerX) < 50;
         const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
         if (overlapX && overlapY) {
-          clearInterval(check);
-          note.remove();
-          score++;
-          updateScoreboard();
-          sfxNote.currentTime = 0;
-          sfxNote.play();
-          checkLevelUp();
-          checkWin();
+          clearInterval(check); note.remove();
+          score++; updateScoreboard();
+          sfxNote.currentTime = 0; sfxNote.play();
+          checkLevelUp(); checkWin();
         }
-        if (top > 700) {
-          clearInterval(check);
-          note.remove();
-        }
+        if (top > 700) { clearInterval(check); note.remove(); }
       }, 30);
     }
 
     function checkLevelUp() {
       if (score > 0 && score % 10 === 0) {
-        level++;
-        updateScoreboard();
+        level++; updateScoreboard();
         fallSpeed = Math.max(0.3, fallSpeed - 0.2);
         obstacleInterval = Math.max(200, obstacleInterval - 80);
         resetSpawners();
@@ -302,19 +299,16 @@
 
     function checkWin() {
       if (score >= winScore) {
-        sfxWin.play();
-        endGame(true);
+        sfxWin.play(); endGame(true);
       }
     }
 
     function endGame(win) {
       gameOver = true;
-      clearInterval(obstacleSpawner);
-      clearInterval(noteSpawner);
+      clearInterval(obstacleSpawner); clearInterval(noteSpawner);
       document.querySelectorAll('.falling').forEach(el => el.style.animationPlayState = 'paused');
       if (win) {
-        victory.style.display = 'block';
-        game.classList.add('rave');
+        victory.style.display = 'block'; game.classList.add('rave');
       } else {
         message.style.display = 'block';
       }
@@ -327,38 +321,30 @@
     }
 
     function resetSpawners() {
-      clearInterval(obstacleSpawner);
-      clearInterval(noteSpawner);
+      clearInterval(obstacleSpawner); clearInterval(noteSpawner);
       startSpawners();
     }
 
     function resetGame() {
       document.querySelectorAll('.obstacle, .note').forEach(el => el.remove());
-      playerX = 200;
-      player.style.left = '200px';
-      gameOver = false;
-      score = 0;
-      level = 1;
-      fallSpeed = 2;
-      obstacleInterval = 600;
-      recentObstacleLanes = [];
-      message.style.display = 'none';
-      victory.style.display = 'none';
-      restartBtn.style.display = 'none';
-      game.classList.remove('rave');
-      updateScoreboard();
+      playerX = 200; player.style.left = '200px';
+      gameOver = false; score = 0; level = 1;
+      fallSpeed = 2; obstacleInterval = 600; recentObstacleLanes = [];
+      message.style.display = 'none'; victory.style.display = 'none'; restartBtn.style.display = 'none';
+      game.classList.remove('rave'); updateScoreboard();
       resetSpawners();
     }
 
-    function startGame() {
+    restartBtn.addEventListener('click', resetGame);
+
+    // Кнопка старт
+    document.getElementById('startBtn').addEventListener('click', () => {
       document.getElementById('startScreen').style.display = 'none';
       bgMusic.volume = 0.3;
       bgMusic.play().catch(() => {});
       updateScoreboard();
       startSpawners();
-    }
-
-    restartBtn.addEventListener('click', resetGame);
+    });
   </script>
 </body>
 </html>
