@@ -148,14 +148,26 @@
     </div>
   </div>
 
+  <!-- Эффекты -->
   <audio id="sfx-note" src="note.mp3" preload="auto"></audio>
   <audio id="sfx-fail" src="fail.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
+
+  <!-- Радио СИ -->
+  <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" autoplay loop></audio>
 
   <script>
     const sfxNote = document.getElementById('sfx-note');
     const sfxFail = document.getElementById('sfx-fail');
     const sfxWin = document.getElementById('sfx-win');
+    const bgMusic = document.getElementById('bg-music');
+    bgMusic.volume = 0.3;
+    document.addEventListener('click', () => {
+      if (bgMusic.paused) {
+        bgMusic.play().catch(() => {});
+      }
+    });
+
     const game = document.getElementById('game');
     const player = document.getElementById('player');
     const message = document.getElementById('message');
@@ -204,38 +216,35 @@
     }
 
     function createObstacle() {
-    if (gameOver) return;
-    const obs = document.createElement('div');
-    obs.classList.add('obstacle', 'falling');
-    obs.textContent = '🏠';
-    const lane = Math.floor(Math.random() * maxSteps);
-    obs.style.left = `${lane * step}px`;
-    obs.style.animationDuration = `${fallSpeed}s`;
-    game.appendChild(obs);
-    recentObstacleLanes.push(lane);
-    if (recentObstacleLanes.length > 5) recentObstacleLanes.shift();
+      if (gameOver) return;
+      const obs = document.createElement('div');
+      obs.classList.add('obstacle', 'falling');
+      obs.textContent = '🏠';
+      const lane = Math.floor(Math.random() * maxSteps);
+      obs.style.left = `${lane * step}px`;
+      obs.style.animationDuration = `${fallSpeed}s`;
+      game.appendChild(obs);
+      recentObstacleLanes.push(lane);
+      if (recentObstacleLanes.length > 5) recentObstacleLanes.shift();
 
-    const check = setInterval(() => {
-      const top = obs.offsetTop;
-      const left = obs.offsetLeft;
-      const playerTop = player.offsetTop;
-      const playerHeight = player.offsetHeight;
-
-      const overlapX = Math.abs(left - playerX) < 50;
-      const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
-
-      if (overlapX && overlapY) {
-        clearInterval(check);
-        sfxFail.play();
-        endGame(false);
-      }
-
-      if (top > 700) {
-        clearInterval(check);
-        obs.remove();
-      }
-    }, 30);
-  }
+      const check = setInterval(() => {
+        const top = obs.offsetTop;
+        const left = obs.offsetLeft;
+        const playerTop = player.offsetTop;
+        const playerHeight = player.offsetHeight;
+        const overlapX = Math.abs(left - playerX) < 50;
+        const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
+        if (overlapX && overlapY) {
+          clearInterval(check);
+          sfxFail.play();
+          endGame(false);
+        }
+        if (top > 700) {
+          clearInterval(check);
+          obs.remove();
+        }
+      }, 30);
+    }
 
     function createNote() {
       if (gameOver) return;
@@ -258,18 +267,26 @@
         const overlapX = Math.abs(left - playerX) < 50;
         const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
         if (overlapX && overlapY) {
-          clearInterval(check); note.remove();
-          score++; updateScoreboard();
-          sfxNote.currentTime = 0; sfxNote.play();
-          checkLevelUp(); checkWin();
+          clearInterval(check);
+          note.remove();
+          score++;
+          updateScoreboard();
+          sfxNote.currentTime = 0;
+          sfxNote.play();
+          checkLevelUp();
+          checkWin();
         }
-        if (top > 700) { clearInterval(check); note.remove(); }
+        if (top > 700) {
+          clearInterval(check);
+          note.remove();
+        }
       }, 30);
     }
 
     function checkLevelUp() {
       if (score > 0 && score % 10 === 0) {
-        level++; updateScoreboard();
+        level++;
+        updateScoreboard();
         fallSpeed = Math.max(0.3, fallSpeed - 0.2);
         obstacleInterval = Math.max(200, obstacleInterval - 80);
         resetSpawners();
@@ -278,16 +295,19 @@
 
     function checkWin() {
       if (score >= winScore) {
-        sfxWin.play(); endGame(true);
+        sfxWin.play();
+        endGame(true);
       }
     }
 
     function endGame(win) {
       gameOver = true;
-      clearInterval(obstacleSpawner); clearInterval(noteSpawner);
+      clearInterval(obstacleSpawner);
+      clearInterval(noteSpawner);
       document.querySelectorAll('.falling').forEach(el => el.style.animationPlayState = 'paused');
       if (win) {
-        victory.style.display = 'block'; game.classList.add('rave');
+        victory.style.display = 'block';
+        game.classList.add('rave');
       } else {
         message.style.display = 'block';
       }
@@ -300,17 +320,26 @@
     }
 
     function resetSpawners() {
-      clearInterval(obstacleSpawner); clearInterval(noteSpawner);
+      clearInterval(obstacleSpawner);
+      clearInterval(noteSpawner);
       startSpawners();
     }
 
     function resetGame() {
       document.querySelectorAll('.obstacle, .note').forEach(el => el.remove());
-      playerX = 200; player.style.left = '200px';
-      gameOver = false; score = 0; level = 1;
-      fallSpeed = 2; obstacleInterval = 600; recentObstacleLanes = [];
-      message.style.display = 'none'; victory.style.display = 'none'; restartBtn.style.display = 'none';
-      game.classList.remove('rave'); updateScoreboard();
+      playerX = 200;
+      player.style.left = '200px';
+      gameOver = false;
+      score = 0;
+      level = 1;
+      fallSpeed = 2;
+      obstacleInterval = 600;
+      recentObstacleLanes = [];
+      message.style.display = 'none';
+      victory.style.display = 'none';
+      restartBtn.style.display = 'none';
+      game.classList.remove('rave');
+      updateScoreboard();
       resetSpawners();
     }
 
