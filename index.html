@@ -187,11 +187,25 @@
     </div>
   </div>
 
-  <audio id="sfx-note" src="си.mp3" preload="auto"></audio>
+ <audio id="note1" src="си.mp3" preload="auto"></audio>
+  <audio id="note2" src="оп.mp3" preload="auto"></audio>
+
   <audio id="sfx-fail" src="бум.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
 
-  <script>
+<script>
+  const sfxNotes = [
+    document.getElementById('note1'),
+    document.getElementById('note2')
+  ];
+  let noteIndex = 0;
+  function playNextNoteSound(){
+    const snd = sfxNotes[noteIndex];
+    snd.currentTime = 0;
+    snd.play();
+    noteIndex = (noteIndex + 1) % sfxNotes.length;
+  }
+
     const sfxNote = document.getElementById('sfx-note');
     const sfxFail = document.getElementById('sfx-fail');
     const sfxWin = document.getElementById('sfx-win');
@@ -362,6 +376,7 @@
   </script>
 </body>
 </html>
+
 
 
 
