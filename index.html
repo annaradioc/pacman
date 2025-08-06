@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Успеть на Дискотеку 💃</title>
   <style>
-    body { margin: 0; overflow: hidden; font-family: sans-serif; background: #444; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: #444;
+    }
     #game {
       position: relative;
       width: 100%;
@@ -28,25 +33,39 @@
     }
     .player {
       position: absolute;
-      bottom: 80px; /* выше, чтобы не закрывался кнопками */
+      bottom: 80px;
+      left: 200px;
       width: 100px;
       text-align: center;
       font-size: 60px;
       z-index: 2;
       transition: left 0.1s;
     }
-    .obstacle, .note {
+    .obstacle {
       position: absolute;
       width: 100px;
       text-align: center;
-      top: 0;
       font-size: 60px;
+      top: 0;
       z-index: 1;
+      color: black;
     }
-    .note { font-size: 40px; color: yellow; }
-    .obstacle { color: black; }
-    @keyframes fall { 0% { top: -60px; } 100% { top: 720px; } }
-    .falling { animation: fall linear forwards; }
+    .note {
+      position: absolute;
+      width: 100px;
+      text-align: center;
+      font-size: 40px;
+      top: 0;
+      z-index: 1;
+      color: yellow;
+    }
+    @keyframes fall {
+      0% { top: -60px; }
+      100% { top: 720px; }
+    }
+    .falling {
+      animation: fall linear forwards;
+    }
     #message, #victory {
       position: absolute;
       top: 50%;
@@ -78,6 +97,21 @@
       cursor: pointer;
       z-index: 10;
     }
+    .rave {
+      animation: party 0.2s infinite alternate;
+    }
+    @keyframes party {
+      0% { background: #000; }
+      100% { background: #6600cc; }
+    }
+    #victoryEmoji {
+      font-size: 50px;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
     .controls {
       display: none;
       position: absolute;
@@ -95,16 +129,18 @@
       border-radius: 10px;
     }
     @media (max-width: 600px) {
-      .controls { display: block; }
+      .controls {
+        display: block;
+      }
     }
   </style>
 </head>
 <body>
   <div id="game">
     <div class="player" id="player">🕺</div>
-    <div id="scoreboard">Ноты: 0 | Уровень: 1</div>
     <div id="message">😢 Ты не успел на дискотеку!</div>
-    <div id="victory">🎉 Ты успел на дискотеку! 🪩<div id="victoryEmoji">🕺💃🎶🪩🔥</div></div>
+    <div id="victory">🎉 Ты успел на дискотеку! 🪩<br><div id="victoryEmoji">🕺💃🎶🪩🔥🕺💃🎶</div></div>
+    <div id="scoreboard">Ноты: 0 | Уровень: 1</div>
     <button id="restartBtn">🔄 Играть снова</button>
     <div class="controls">
       <button class="btn" id="leftBtn">◀️</button>
@@ -129,18 +165,12 @@
     const leftBtn = document.getElementById('leftBtn');
     const rightBtn = document.getElementById('rightBtn');
 
-    let maxSteps = window.innerWidth < 600 ? 4 : 5;
-    const gameWidth = game.offsetWidth || 500;
-    const step = Math.floor(gameWidth / maxSteps);
-    let playerX = Math.floor((maxSteps - 1) / 2) * step;
-    let score = 0, level = 1, gameOver = false;
+    const step = 100, maxSteps = 5, winScore = 30;
+    let playerX = 200, gameOver = false, score = 0, level = 1;
     let obstacleInterval = 600, fallSpeed = 2;
     let obstacleSpawner, noteSpawner;
     let recentObstacleLanes = [];
 
-    player.style.left = playerX + 'px';
-
-    // создаём полосы
     for (let i = 1; i < maxSteps; i++) {
       const lane = document.createElement('div');
       lane.className = 'lane';
@@ -153,11 +183,19 @@
       if (e.key === 'ArrowLeft' && playerX > 0) movePlayer(-step);
       if (e.key === 'ArrowRight' && playerX < (step * (maxSteps - 1))) movePlayer(step);
     });
-    leftBtn.onclick = () => { if (!gameOver && playerX > 0) movePlayer(-step); };
-    rightBtn.onclick = () => { if (!gameOver && playerX < (step * (maxSteps - 1))) movePlayer(step); };
+
+    leftBtn.addEventListener('click', () => {
+      if (gameOver) return;
+      if (playerX > 0) movePlayer(-step);
+    });
+
+    rightBtn.addEventListener('click', () => {
+      if (gameOver) return;
+      if (playerX < (step * (maxSteps - 1))) movePlayer(step);
+    });
 
     function movePlayer(delta) {
-      playerX = Math.max(0, Math.min((maxSteps - 1) * step, playerX + delta));
+      playerX += delta;
       player.style.left = playerX + 'px';
     }
 
@@ -166,24 +204,38 @@
     }
 
     function createObstacle() {
-      if (gameOver) return;
-      const obs = document.createElement('div');
-      obs.classList.add('obstacle', 'falling');
-      obs.textContent = '🏠';
-      const lane = Math.floor(Math.random() * maxSteps);
-      obs.style.left = `${lane * step}px`;
-      obs.style.animationDuration = `${fallSpeed}s`;
-      game.appendChild(obs);
-      recentObstacleLanes.push(lane);
-      if (recentObstacleLanes.length > 5) recentObstacleLanes.shift();
-      const check = setInterval(() => {
-        const top = obs.offsetTop, left = obs.offsetLeft;
-        if (top > 600 && Math.abs(left - playerX) < step * 0.3) {
-          clearInterval(check); sfxFail.currentTime = 0; sfxFail.play(); endGame(false);
-        }
-        if (top > 700) { clearInterval(check); obs.remove(); }
-      }, 50);
-    }
+    if (gameOver) return;
+    const obs = document.createElement('div');
+    obs.classList.add('obstacle', 'falling');
+    obs.textContent = '🏠';
+    const lane = Math.floor(Math.random() * maxSteps);
+    obs.style.left = `${lane * step}px`;
+    obs.style.animationDuration = `${fallSpeed}s`;
+    game.appendChild(obs);
+    recentObstacleLanes.push(lane);
+    if (recentObstacleLanes.length > 5) recentObstacleLanes.shift();
+
+    const check = setInterval(() => {
+      const top = obs.offsetTop;
+      const left = obs.offsetLeft;
+      const playerTop = player.offsetTop;
+      const playerHeight = player.offsetHeight;
+
+      const overlapX = Math.abs(left - playerX) < 50;
+      const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
+
+      if (overlapX && overlapY) {
+        clearInterval(check);
+        sfxFail.play();
+        endGame(false);
+      }
+
+      if (top > 700) {
+        clearInterval(check);
+        obs.remove();
+      }
+    }, 30);
+  }
 
     function createNote() {
       if (gameOver) return;
@@ -199,15 +251,20 @@
       note.style.animationDuration = `${fallSpeed}s`;
       game.appendChild(note);
       const check = setInterval(() => {
-        const top = note.offsetTop, left = note.offsetLeft;
-        if (Math.abs(left - playerX) < step * 1.2) {
+        const top = note.offsetTop;
+        const left = note.offsetLeft;
+        const playerTop = player.offsetTop;
+        const playerHeight = player.offsetHeight;
+        const overlapX = Math.abs(left - playerX) < 50;
+        const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
+        if (overlapX && overlapY) {
           clearInterval(check); note.remove();
           score++; updateScoreboard();
           sfxNote.currentTime = 0; sfxNote.play();
           checkLevelUp(); checkWin();
         }
-        if (top > 700) clearInterval(check) && note.remove();
-      }, 50);
+        if (top > 700) { clearInterval(check); note.remove(); }
+      }, 30);
     }
 
     function checkLevelUp() {
@@ -215,16 +272,13 @@
         level++; updateScoreboard();
         fallSpeed = Math.max(0.3, fallSpeed - 0.2);
         obstacleInterval = Math.max(200, obstacleInterval - 80);
-        clearInterval(obstacleSpawner); clearInterval(noteSpawner);
-        obstacleSpawner = setInterval(createObstacle, obstacleInterval);
-        noteSpawner = setInterval(createNote, obstacleInterval * 1.5);
+        resetSpawners();
       }
     }
 
     function checkWin() {
-      if (score >= 30) {
-        sfxWin.currentTime = 0; sfxWin.play();
-        endGame(true);
+      if (score >= winScore) {
+        sfxWin.play(); endGame(true);
       }
     }
 
@@ -232,17 +286,37 @@
       gameOver = true;
       clearInterval(obstacleSpawner); clearInterval(noteSpawner);
       document.querySelectorAll('.falling').forEach(el => el.style.animationPlayState = 'paused');
-      if (win) victory.style.display = 'block'; else message.style.display = 'block';
+      if (win) {
+        victory.style.display = 'block'; game.classList.add('rave');
+      } else {
+        message.style.display = 'block';
+      }
       restartBtn.style.display = 'block';
     }
 
-    restartBtn.onclick = () => {
-      location.reload();
-    };
+    function startSpawners() {
+      obstacleSpawner = setInterval(createObstacle, obstacleInterval);
+      noteSpawner = setInterval(createNote, obstacleInterval * 1.5);
+    }
 
+    function resetSpawners() {
+      clearInterval(obstacleSpawner); clearInterval(noteSpawner);
+      startSpawners();
+    }
+
+    function resetGame() {
+      document.querySelectorAll('.obstacle, .note').forEach(el => el.remove());
+      playerX = 200; player.style.left = '200px';
+      gameOver = false; score = 0; level = 1;
+      fallSpeed = 2; obstacleInterval = 600; recentObstacleLanes = [];
+      message.style.display = 'none'; victory.style.display = 'none'; restartBtn.style.display = 'none';
+      game.classList.remove('rave'); updateScoreboard();
+      resetSpawners();
+    }
+
+    restartBtn.addEventListener('click', resetGame);
     updateScoreboard();
-    obstacleSpawner = setInterval(createObstacle, obstacleInterval);
-    noteSpawner = setInterval(createNote, obstacleInterval * 1.5);
+    startSpawners();
   </script>
 </body>
 </html>
