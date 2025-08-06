@@ -5,11 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Успеть на Дискотеку 💃</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
     body {
       margin: 0;
       overflow: hidden;
-      font-family: sans-serif;
-      background: #444;
+      font-family: 'Press Start 2P', cursive;
+      background: #222;
+      color: #fff;
     }
     #game {
       position: relative;
@@ -17,10 +20,15 @@
       max-width: 500px;
       height: 700px;
       margin: 0 auto;
-      background: #666;
+      background: #444;
       border: 5px solid #fff;
       overflow: hidden;
       touch-action: manipulation;
+    }
+    @media (min-width: 800px) {
+      #game {
+        height: 900px;
+      }
     }
     .lane {
       position: absolute;
@@ -61,7 +69,7 @@
     }
     @keyframes fall {
       0% { top: -60px; }
-      100% { top: 720px; }
+      100% { top: 920px; }
     }
     .falling {
       animation: fall linear forwards;
@@ -72,7 +80,7 @@
       width: 100%;
       text-align: center;
       color: white;
-      font-size: 30px;
+      font-size: 18px;
       display: none;
       z-index: 10;
     }
@@ -81,7 +89,7 @@
       top: 10px;
       left: 10px;
       color: #fff;
-      font-size: 20px;
+      font-size: 12px;
       z-index: 10;
     }
     #restartBtn {
@@ -91,9 +99,9 @@
       left: 50%;
       transform: translateX(-50%);
       padding: 10px 20px;
-      font-size: 18px;
+      font-size: 14px;
       background: #fff;
-      border: none;
+      border: 2px solid #000;
       cursor: pointer;
       z-index: 10;
     }
@@ -105,7 +113,7 @@
       100% { background: #6600cc; }
     }
     #victoryEmoji {
-      font-size: 50px;
+      font-size: 24px;
       margin-top: 20px;
       display: flex;
       justify-content: center;
@@ -121,12 +129,13 @@
       z-index: 5;
     }
     .btn {
-      font-size: 36px;
+      font-size: 28px;
       padding: 10px 20px;
       margin: 5px;
       background: #fff;
-      border: none;
-      border-radius: 10px;
+      border: 2px solid #000;
+      border-radius: 5px;
+      font-family: 'Press Start 2P', cursive;
     }
     #startScreen {
       position: absolute;
@@ -141,6 +150,16 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
+      font-family: 'Press Start 2P', cursive;
+    }
+    #startBtn {
+      font-size: 14px;
+      padding: 12px 24px;
+      margin-top: 20px;
+      background: #fff;
+      border: 2px solid #000;
+      font-family: 'Press Start 2P', cursive;
+      cursor: pointer;
     }
     @media (max-width: 600px) {
       .controls {
@@ -151,14 +170,14 @@
 </head>
 <body>
   <div id="startScreen">
-    <p style="font-size:24px;">Нажми, чтобы начать 🎵</p>
-    <button id="startBtn" style="font-size:20px;padding:10px 20px;">▶️ Старт</button>
+    <p style="text-align:center;">🎶 Чтоб не скучно было, иди 🎶</p>
+    <button id="startBtn">▶️ ВПЕРЁД НА ДИСКОТЕКУ</button>
   </div>
 
   <div id="game">
     <div class="player" id="player">🕺</div>
     <div id="message">😢 Ты не успел на дискотеку!</div>
-    <div id="victory">🎉 Ты успел на дискотеку! 🪩<br><div id="victoryEmoji">🕺💃🎶🪩🔥🕺💃🎶</div></div>
+    <div id="victory">🎉 Ты успел на дискотеку! 🪩<div id="victoryEmoji">🕺💃🎶🪩🔥🕺💃🎶</div></div>
     <div id="scoreboard">Ноты: 0 | Уровень: 1</div>
     <button id="restartBtn">🔄 Играть снова</button>
     <div class="controls">
@@ -167,7 +186,6 @@
     </div>
   </div>
 
-  <!-- Радио СИ -->
   <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" preload="none" loop playsinline></audio>
   <audio id="sfx-note" src="note.mp3" preload="auto"></audio>
   <audio id="sfx-fail" src="fail.mp3" preload="auto"></audio>
@@ -251,7 +269,7 @@
           endGame(false);
         }
 
-        if (top > 700) {
+        if (top > 900) {
           clearInterval(check);
           obs.remove();
         }
@@ -284,7 +302,7 @@
           sfxNote.currentTime = 0; sfxNote.play();
           checkLevelUp(); checkWin();
         }
-        if (top > 700) { clearInterval(check); note.remove(); }
+        if (top > 900) { clearInterval(check); note.remove(); }
       }, 30);
     }
 
@@ -337,22 +355,15 @@
 
     restartBtn.addEventListener('click', resetGame);
 
-    // Кнопка старт
-     document.getElementById('startBtn').addEventListener('click', () => {
-    document.getElementById('startScreen').style.display = 'none';
-
-    const audio = document.getElementById('bg-music');
-    audio.volume = 0.3;
-    audio.play().then(() => {
-      console.log('🎵 Радио запущено');
-    }).catch((e) => {
-      console.warn('🔇 Не удалось воспроизвести музыку:', e);
-      alert("⚠️ Нажмите на кнопку ещё раз, чтобы включить музыку.");
+    document.getElementById('startBtn').addEventListener('click', () => {
+      document.getElementById('startScreen').style.display = 'none';
+      bgMusic.volume = 0.3;
+      bgMusic.play().catch(err => {
+        alert('⚠️ Не удалось включить музыку. Попробуйте снова.');
+      });
+      updateScoreboard();
+      startSpawners();
     });
-
-    updateScoreboard();
-    startSpawners();
-  });
   </script>
 </body>
 </html>
