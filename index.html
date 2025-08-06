@@ -170,8 +170,8 @@
 </head>
 <body>
   <div id="startScreen">
-    <p style="text-align:center;">🎶 Соберите как можно больше ноток, избегая домов 🎶</p>
-    <p style="text-align:center;">Упарвляйте кнопками-стрелочками ◀️▶️ </p>
+    <p style="text-align:center;">🎶 Собери нотки, избегай домов! 🎶</p>
+    <p style="text-align:center;">Управляй стрелочками ◀️▶️</p>
     <button id="startBtn">▶️ ВПЕРЁД НА ДИСКОТЕКУ</button>
   </div>
 
@@ -187,7 +187,7 @@
     </div>
   </div>
 
-
+  <!-- Музыка -->
   <audio id="sfx-note" src="оп.mp3" preload="auto"></audio>
   <audio id="sfx-fail" src="бум.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
@@ -196,7 +196,6 @@
     const sfxNote = document.getElementById('sfx-note');
     const sfxFail = document.getElementById('sfx-fail');
     const sfxWin = document.getElementById('sfx-win');
-    const bgMusic = document.getElementById('bg-music');
     const game = document.getElementById('game');
     const player = document.getElementById('player');
     const message = document.getElementById('message');
@@ -358,17 +357,9 @@
 
     document.getElementById('startBtn').addEventListener('click', () => {
       document.getElementById('startScreen').style.display = 'none';
-      bgMusic.volume = 0.3;
-      bgMusic.play().catch(err => {
-        alert('⚠️ Не удалось включить музыку. Попробуйте снова.');
-      });
       updateScoreboard();
       startSpawners();
     });
   </script>
 </body>
 </html>
-
-
-
-
