@@ -128,6 +128,18 @@
       border: none;
       border-radius: 10px;
     }
+    #startScreen {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      z-index: 999;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
     @media (max-width: 600px) {
       .controls {
         display: block;
@@ -136,6 +148,11 @@
   </style>
 </head>
 <body>
+  <div id="startScreen">
+    <p style="font-size:24px;">Нажми, чтобы начать 🎵</p>
+    <button onclick="startGame()" style="font-size:20px;padding:10px 20px;">Старт</button>
+  </div>
+
   <div id="game">
     <div class="player" id="player">🕺</div>
     <div id="message">😢 Ты не успел на дискотеку!</div>
@@ -148,26 +165,17 @@
     </div>
   </div>
 
-  <!-- Эффекты -->
+  <!-- Аудио -->
   <audio id="sfx-note" src="note.mp3" preload="auto"></audio>
   <audio id="sfx-fail" src="fail.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
-
-  <!-- Радио СИ -->
-  <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" autoplay loop></audio>
+  <audio id="bg-music" src="http://online.radioc.ru:8000/radioc" loop></audio>
 
   <script>
     const sfxNote = document.getElementById('sfx-note');
     const sfxFail = document.getElementById('sfx-fail');
     const sfxWin = document.getElementById('sfx-win');
     const bgMusic = document.getElementById('bg-music');
-    bgMusic.volume = 0.3;
-    document.addEventListener('click', () => {
-      if (bgMusic.paused) {
-        bgMusic.play().catch(() => {});
-      }
-    });
-
     const game = document.getElementById('game');
     const player = document.getElementById('player');
     const message = document.getElementById('message');
@@ -226,7 +234,6 @@
       game.appendChild(obs);
       recentObstacleLanes.push(lane);
       if (recentObstacleLanes.length > 5) recentObstacleLanes.shift();
-
       const check = setInterval(() => {
         const top = obs.offsetTop;
         const left = obs.offsetLeft;
@@ -343,9 +350,15 @@
       resetSpawners();
     }
 
+    function startGame() {
+      document.getElementById('startScreen').style.display = 'none';
+      bgMusic.volume = 0.3;
+      bgMusic.play().catch(() => {});
+      updateScoreboard();
+      startSpawners();
+    }
+
     restartBtn.addEventListener('click', resetGame);
-    updateScoreboard();
-    startSpawners();
   </script>
 </body>
 </html>
