@@ -196,10 +196,12 @@
   <audio id="sfx-fail" src="бум.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
 
+
   <script>
     const sfxNote = document.getElementById('sfx-note');
     const sfxFail = document.getElementById('sfx-fail');
     const sfxWin = document.getElementById('sfx-win');
+    sfxNote.volume = 0.5;
     const game = document.getElementById('game');
     const player = document.getElementById('player');
     const message = document.getElementById('message');
@@ -377,4 +379,5 @@
   </script>
 </body>
 </html>
+
 
