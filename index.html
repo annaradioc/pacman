@@ -1,4 +1,3 @@
-<!-- Начало HTML -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -40,15 +39,15 @@
       z-index: 0;
     }
     .player {
-  font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+      font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
       position: absolute;
-      bottom: 80px;
       left: 200px;
+      top: 600px;
       width: 100px;
       text-align: center;
       font-size: 60px;
       z-index: 2;
-      transition: left 0.1s;
+      transition: left 0.1s, top 0.1s;
     }
     .obstacle {
       position: absolute;
@@ -172,7 +171,7 @@
 <body>
   <div id="startScreen">
     <p style="text-align:center;">🎶 Собери нотки, избегай домов! 🎶</p>
-    <p style="text-align:center;">Управляй стрелочками ◀️▶️</p>
+    <p style="text-align:center;">Управляй стрелочками ◀️▶️⬆️⬇️</p>
     <button id="startBtn">▶️ ВПЕРЁД НА ДИСКОТЕКУ</button>
   </div>
 
@@ -206,10 +205,14 @@
     const rightBtn = document.getElementById('rightBtn');
 
     const step = 100, maxSteps = 5, winScore = 30;
-    let playerX = 200, gameOver = false, score = 0, level = 1;
+    let playerX = 200, playerY = 600;
+    let gameOver = false, score = 0, level = 1;
     let obstacleInterval = 600, fallSpeed = 2;
     let obstacleSpawner, noteSpawner;
     let recentObstacleLanes = [];
+    const verticalStep = 40;
+    const minY = 0;
+    const maxY = game.offsetHeight - 100;
 
     for (let i = 1; i < maxSteps; i++) {
       const lane = document.createElement('div');
@@ -218,25 +221,33 @@
       game.appendChild(lane);
     }
 
-    function movePlayer(delta) {
-      playerX += delta;
+    function movePlayer(deltaX = 0, deltaY = 0) {
+      playerX += deltaX;
+      playerY += deltaY;
+
+      playerX = Math.max(0, Math.min(playerX, step * (maxSteps - 1)));
+      playerY = Math.max(minY, Math.min(playerY, maxY));
+
       player.style.left = playerX + 'px';
+      player.style.top = playerY + 'px';
     }
 
     document.addEventListener('keydown', e => {
       if (gameOver) return;
-      if (e.key === 'ArrowLeft' && playerX > 0) movePlayer(-step);
-      if (e.key === 'ArrowRight' && playerX < (step * (maxSteps - 1))) movePlayer(step);
+      if (e.key === 'ArrowLeft') movePlayer(-step, 0);
+      if (e.key === 'ArrowRight') movePlayer(step, 0);
+      if (e.key === 'ArrowUp') movePlayer(0, -verticalStep);
+      if (e.key === 'ArrowDown') movePlayer(0, verticalStep);
     });
 
     leftBtn.addEventListener('click', () => {
       if (gameOver) return;
-      if (playerX > 0) movePlayer(-step);
+      movePlayer(-step, 0);
     });
 
     rightBtn.addEventListener('click', () => {
       if (gameOver) return;
-      if (playerX < (step * (maxSteps - 1))) movePlayer(step);
+      movePlayer(step, 0);
     });
 
     function updateScoreboard() {
@@ -258,10 +269,8 @@
       const check = setInterval(() => {
         const top = obs.offsetTop;
         const left = obs.offsetLeft;
-        const playerTop = player.offsetTop;
-        const playerHeight = player.offsetHeight;
         const overlapX = Math.abs(left - playerX) < 50;
-        const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
+        const overlapY = top + 40 > playerY && top < playerY + 100;
 
         if (overlapX && overlapY) {
           clearInterval(check);
@@ -292,10 +301,8 @@
       const check = setInterval(() => {
         const top = note.offsetTop;
         const left = note.offsetLeft;
-        const playerTop = player.offsetTop;
-        const playerHeight = player.offsetHeight;
         const overlapX = Math.abs(left - playerX) < 50;
-        const overlapY = top + 40 > playerTop && top < playerTop + playerHeight;
+        const overlapY = top + 40 > playerY && top < playerY + 100;
         if (overlapX && overlapY) {
           clearInterval(check); note.remove();
           score++; updateScoreboard();
@@ -345,7 +352,9 @@
 
     function resetGame() {
       document.querySelectorAll('.obstacle, .note').forEach(el => el.remove());
-      playerX = 200; player.style.left = '200px';
+      playerX = 200; playerY = 600;
+      player.style.left = playerX + 'px';
+      player.style.top = playerY + 'px';
       gameOver = false; score = 0; level = 1;
       fallSpeed = 2; obstacleInterval = 600; recentObstacleLanes = [];
       message.style.display = 'none'; victory.style.display = 'none'; restartBtn.style.display = 'none';
