@@ -123,7 +123,7 @@
     .controls {
       display: none;
       position: absolute;
-      bottom: 50px;
+      bottom: 90px;
       width: 100%;
       text-align: center;
       z-index: 5;
@@ -161,22 +161,22 @@
       font-family: 'Press Start 2P', cursive;
       cursor: pointer;
     }
+
     @media (max-width: 600px) {
       .controls {
         display: block;
+        bottom: 90px;
       }
-         @media (max-width: 600px) {
-  .player {
-    top: 450px;
-  }
-}
+      .player {
+        top: 450px;
+      }
     }
   </style>
 </head>
 <body>
   <div id="startScreen">
     <p style="text-align:center;">🎶 Собери нотки, избегай домов! 🎶</p>
-    <p style="text-align:center;">Управляй стрелочками ◀️▶️🔼🔽</p>
+    <p style="text-align:center;">Управляй стрелочками ◀️▶️⬆️⬇️</p>
     <button id="startBtn">▶️ ВПЕРЁД НА ДИСКОТЕКУ</button>
   </div>
 
@@ -210,7 +210,7 @@
     const rightBtn = document.getElementById('rightBtn');
 
     const step = 100, maxSteps = 5, winScore = 90;
-    let playerX = 200, playerY = 600;
+    let playerX = 200, playerY = 500;
     let gameOver = false, score = 0, level = 1;
     let obstacleInterval = 600, fallSpeed = 2;
     let obstacleSpawner, noteSpawner;
@@ -357,7 +357,7 @@
 
     function resetGame() {
       document.querySelectorAll('.obstacle, .note').forEach(el => el.remove());
-      playerX = 200; playerY = 600;
+      playerX = 200; playerY = 500;
       player.style.left = playerX + 'px';
       player.style.top = playerY + 'px';
       gameOver = false; score = 0; level = 1;
@@ -377,7 +377,3 @@
   </script>
 </body>
 </html>
-
-
-
-
