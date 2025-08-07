@@ -6,175 +6,87 @@
   <title>Попасть на Дискотеку 💃</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    body {
-      margin: 0;
-      overflow: hidden;
-      font-family: 'Press Start 2P', cursive;
-      background: #222;
-      color: #fff;
-    }
+    body { margin: 0; overflow: hidden; font-family: 'Press Start 2P', cursive; background: #222; color: #fff; }
     #game {
       position: relative;
-      width: 100%;
-      max-width: 500px;
-      height: 700px;
-      margin: 0 auto;
-      background: #444;
-      border: 5px solid #fff;
-      overflow: hidden;
-      touch-action: manipulation;
+      width: 100%; max-width: 500px;
+      height: 700px; margin: 0 auto;
+      background: #444; border: 5px solid #fff;
+      overflow: hidden; touch-action: manipulation;
     }
     @media (min-width: 800px) {
-      #game {
-        height: 900px;
-      }
+      #game { height: 900px; }
     }
     .lane {
-      position: absolute;
-      top: 0;
-      width: 2px;
-      height: 100%;
-      background: white;
-      opacity: 0.5;
-      z-index: 0;
+      position: absolute; top: 0;
+      width: 2px; height: 100%;
+      background: white; opacity: 0.5; z-index: 0;
     }
     .player {
       font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
       position: absolute;
-      left: 200px;
-      top: 500px;
-      width: 100px;
-      text-align: center;
-      font-size: 60px;
-      z-index: 2;
+      left: 200px; top: 500px;
+      width: 100px; text-align: center;
+      font-size: 60px; z-index: 2;
       transition: left 0.1s, top 0.1s;
     }
     .obstacle {
       position: absolute;
-      width: 100px;
-      text-align: center;
-      font-size: 60px;
-      top: 0;
-      z-index: 1;
-      color: black;
+      width: 100px; text-align: center; font-size: 60px;
+      top: 0; z-index: 1; color: black;
     }
     .note {
       position: absolute;
-      width: 100px;
-      text-align: center;
-      font-size: 40px;
-      top: 0;
-      z-index: 1;
-      color: yellow;
+      width: 100px; text-align: center; font-size: 40px;
+      top: 0; z-index: 1; color: yellow;
     }
     @keyframes fall {
       0% { top: -60px; }
       100% { top: 920px; }
     }
-    .falling {
-      animation: fall linear forwards;
-    }
+    .falling { animation: fall linear forwards; }
     #message, #victory {
-      position: absolute;
-      top: 50%;
-      width: 100%;
-      text-align: center;
-      color: white;
-      font-size: 18px;
-      display: none;
-      z-index: 10;
+      position: absolute; top: 50%; width: 100%;
+      text-align: center; color: white; font-size: 18px;
+      display: none; z-index: 10;
     }
     #scoreboard {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      color: #ffdd00;
-      font-size: 12px;
-      z-index: 10;
+      position: absolute; top: 10px; left: 10px;
+      color: #ffdd00; font-size: 12px; z-index: 10;
     }
     #restartBtn {
-      display: none;
-      position: absolute;
-      top: 70%;
-      left: 50%;
+      display: none; position: absolute;
+      top: 70%; left: 50%;
       transform: translateX(-50%);
-      padding: 10px 20px;
-      font-size: 14px;
-      background: #fff;
-      border: 2px solid #000;
-      cursor: pointer;
-      z-index: 10;
+      padding: 10px 20px; font-size: 14px;
+      background: #fff; border: 2px solid #000;
+      cursor: pointer; z-index: 10;
     }
-    .rave {
-      animation: party 0.2s infinite alternate;
-    }
+    .rave { animation: party 0.2s infinite alternate; }
     @keyframes party {
       0% { background: #000; }
       100% { background: #6600cc; }
     }
     #victoryEmoji {
-      font-size: 24px;
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
+      font-size: 24px; margin-top: 20px;
+      display: flex; justify-content: center;
+      flex-wrap: wrap; gap: 10px;
     }
     .controls {
-      display: none;
-      position: absolute;
-      bottom: 75px;
-      width: 100%;
-      text-align: center;
-      z-index: 5;
+      display: none; position: absolute;
+      bottom: 75px; width: 100%;
+      text-align: center; z-index: 5;
     }
     .btn {
-      font-size: 28px;
-      padding: 10px 20px;
-      margin: 5px;
-      background: #fff;
-      border: 2px solid #000;
-      border-radius: 5px;
+      font-size: 28px; padding: 10px 20px;
+      margin: 5px; background: #fff;
+      border: 2px solid #000; border-radius: 5px;
       font-family: 'Press Start 2P', cursive;
     }
-    #startScreen {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 999;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-family: 'Press Start 2P', cursive;
-    }
-    #startBtn {
-      font-size: 14px;
-      padding: 12px 24px;
-      margin-top: 20px;
-      background: #fff;
-      border: 2px solid #000;
-      font-family: 'Press Start 2P', cursive;
-      cursor: pointer;
-    }
-
     @media (max-width: 600px) {
-      .controls {
-        display: block;
-        bottom: 90px;
-      }
-      .player {
-        top: 450px;
-      }
-       .btn {
-    font-size: 18px;
-    padding: 8px 40px;
-  }
-}
+      .controls { display: block; bottom: 90px; }
+      .player { top: 450px; }
+      .btn { font-size: 18px; padding: 8px 16px; }
     }
   </style>
 </head>
@@ -184,11 +96,12 @@
     <p style="text-align:center;">Управляй стрелочками ◀️▶️🔼🔽</p>
     <button id="startBtn">▶️ ВПЕРЁД НА ДИСКОТЕКУ</button>
   </div>
-
   <div id="game">
     <div class="player" id="player">🕺</div>
     <div id="message">😢 Ты не попал на дискотеку!</div>
-    <div id="victory">🎉 Ты попал на дискотеку! 🪩<div id="victoryEmoji">🕺💃🎶🪩🔥🕺💃🎶</div></div>
+    <div id="victory">🎉 Ты попал на дискотеку! 🪩
+      <div id="victoryEmoji">🕺💃🎶🪩🔥🕺💃🎶</div>
+    </div>
     <div id="scoreboard">Ноты: 0 | Уровень: 1</div>
     <button id="restartBtn">🔄 Играть снова</button>
     <div class="controls">
@@ -196,17 +109,18 @@
       <button class="btn" id="rightBtn">▶️</button>
     </div>
   </div>
-
   <audio id="sfx-note" src="оп.mp3" preload="auto"></audio>
   <audio id="sfx-fail" src="бум.mp3" preload="auto"></audio>
   <audio id="sfx-win" src="win.mp3" preload="auto"></audio>
-
 
   <script>
     const sfxNote = document.getElementById('sfx-note');
     const sfxFail = document.getElementById('sfx-fail');
     const sfxWin = document.getElementById('sfx-win');
-    sfxNote.volume = 0.5;
+    sfxNote.volume = 0.3;
+    sfxFail.volume = 0.3;
+    sfxWin.volume = 0.3;
+
     const game = document.getElementById('game');
     const player = document.getElementById('player');
     const message = document.getElementById('message');
@@ -216,7 +130,7 @@
     const leftBtn = document.getElementById('leftBtn');
     const rightBtn = document.getElementById('rightBtn');
 
-    const step = 100, maxSteps = 5, winScore = 90;
+    const step = 100, maxSteps = 5, winScore = 30;
     let playerX = 200, playerY = 450;
     let gameOver = false, score = 0, level = 1;
     let obstacleInterval = 600, fallSpeed = 2;
@@ -234,12 +148,8 @@
     }
 
     function movePlayer(deltaX = 0, deltaY = 0) {
-      playerX += deltaX;
-      playerY += deltaY;
-
-      playerX = Math.max(0, Math.min(playerX, step * (maxSteps - 1)));
-      playerY = Math.max(minY, Math.min(playerY, maxY));
-
+      playerX = Math.max(0, Math.min(playerX + deltaX, step * (maxSteps - 1)));
+      playerY = Math.max(minY, Math.min(playerY + deltaY, maxY));
       player.style.left = playerX + 'px';
       player.style.top = playerY + 'px';
     }
@@ -252,15 +162,8 @@
       if (e.key === 'ArrowDown') movePlayer(0, verticalStep);
     });
 
-    leftBtn.addEventListener('click', () => {
-      if (gameOver) return;
-      movePlayer(-step, 0);
-    });
-
-    rightBtn.addEventListener('click', () => {
-      if (gameOver) return;
-      movePlayer(step, 0);
-    });
+    leftBtn.addEventListener('click', () => { if (!gameOver) movePlayer(-step, 0); });
+    rightBtn.addEventListener('click', () => { if (!gameOver) movePlayer(step, 0); });
 
     function updateScoreboard() {
       scoreboard.textContent = `Ноты: ${score} | Уровень: ${level}`;
@@ -269,7 +172,7 @@
     function createObstacle() {
       if (gameOver) return;
       const obs = document.createElement('div');
-      obs.classList.add('obstacle', 'falling');
+      obs.className = 'obstacle falling';
       obs.textContent = '🏠';
       const lane = Math.floor(Math.random() * maxSteps);
       obs.style.left = `${lane * step}px`;
@@ -282,18 +185,15 @@
         const top = obs.offsetTop;
         const left = obs.offsetLeft;
         const overlapX = Math.abs(left - playerX) < 50;
-        const overlapY = top + 40 > playerY && top < playerY + 100;
+        // уменьшил верхнюю зону столкновений:
+        const overlapY = top + 60 > playerY && top + 20 < playerY + 100;
 
         if (overlapX && overlapY) {
           clearInterval(check);
           sfxFail.play();
           endGame(false);
         }
-
-        if (top > 900) {
-          clearInterval(check);
-          obs.remove();
-        }
+        if (top > 900) { clearInterval(check); obs.remove(); }
       }, 30);
     }
 
@@ -304,21 +204,26 @@
         lane = Math.floor(Math.random() * maxSteps);
         attempts++;
       } while (recentObstacleLanes.includes(lane) && attempts < 10);
+
       const note = document.createElement('div');
-      note.classList.add('note', 'falling');
+      note.className = 'note falling';
       note.textContent = '🎵';
       note.style.left = `${lane * step}px`;
       note.style.animationDuration = `${fallSpeed}s`;
       game.appendChild(note);
+
       const check = setInterval(() => {
         const top = note.offsetTop;
         const left = note.offsetLeft;
         const overlapX = Math.abs(left - playerX) < 50;
         const overlapY = top + 40 > playerY && top < playerY + 100;
         if (overlapX && overlapY) {
-          clearInterval(check); note.remove();
-          score++; updateScoreboard();
-          sfxNote.currentTime = 0; sfxNote.play();
+          clearInterval(check);
+          note.remove();
+          score++;
+          sfxNote.currentTime = 0;
+          sfxNote.play();
+          updateScoreboard();
           checkLevelUp(); checkWin();
         }
         if (top > 900) { clearInterval(check); note.remove(); }
@@ -327,25 +232,29 @@
 
     function checkLevelUp() {
       if (score > 0 && score % 10 === 0) {
-        level++; updateScoreboard();
+        level++;
         fallSpeed = Math.max(0.3, fallSpeed - 0.2);
         obstacleInterval = Math.max(200, obstacleInterval - 80);
         resetSpawners();
+        updateScoreboard();
       }
     }
 
     function checkWin() {
       if (score >= winScore) {
-        sfxWin.play(); endGame(true);
+        sfxWin.play();
+        endGame(true);
       }
     }
 
     function endGame(win) {
       gameOver = true;
-      clearInterval(obstacleSpawner); clearInterval(noteSpawner);
+      clearInterval(obstacleSpawner);
+      clearInterval(noteSpawner);
       document.querySelectorAll('.falling').forEach(el => el.style.animationPlayState = 'paused');
       if (win) {
-        victory.style.display = 'block'; game.classList.add('rave');
+        victory.style.display = 'block';
+        game.classList.add('rave');
       } else {
         message.style.display = 'block';
       }
@@ -358,19 +267,28 @@
     }
 
     function resetSpawners() {
-      clearInterval(obstacleSpawner); clearInterval(noteSpawner);
+      clearInterval(obstacleSpawner);
+      clearInterval(noteSpawner);
       startSpawners();
     }
 
     function resetGame() {
       document.querySelectorAll('.obstacle, .note').forEach(el => el.remove());
-      playerX = 200; playerY = 500;
-      player.style.left = playerX + 'px';
-      player.style.top = playerY + 'px';
-      gameOver = false; score = 0; level = 1;
-      fallSpeed = 2; obstacleInterval = 600; recentObstacleLanes = [];
-      message.style.display = 'none'; victory.style.display = 'none'; restartBtn.style.display = 'none';
-      game.classList.remove('rave'); updateScoreboard();
+      playerX = 200;
+      playerY = 450;
+      player.style.left = '200px';
+      player.style.top = '450px';
+      gameOver = false;
+      score = 0;
+      level = 1;
+      fallSpeed = 2;
+      obstacleInterval = 600;
+      recentObstacleLanes = [];
+      message.style.display = 'none';
+      victory.style.display = 'none';
+      restartBtn.style.display = 'none';
+      game.classList.remove('rave');
+      updateScoreboard();
       resetSpawners();
     }
 
@@ -384,7 +302,3 @@
   </script>
 </body>
 </html>
-
-
-
-
